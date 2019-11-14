@@ -7,13 +7,15 @@ from odoo import api, fields, models
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
+    _SALE_TAX_PRICE_INCLUDE_SELECTION = [
+        ("no_tax", "No sale tax"),
+        ("all_tax_excl", "Taxes are not included in sale price"),
+        ("all_tax_incl", "All taxes are included in sale price"),
+        ("various_taxes", "Sale price may include taxes"),
+    ]
+
     sale_tax_price_include = fields.Selection(
-        [
-            ("no_tax", "No sale tax"),
-            ("all_tax_excl", "Taxes are not included in sale price"),
-            ("all_tax_incl", "All taxes are included in sale price"),
-            ("various_taxes", "Sale price may include taxes"),
-        ],
+        selection=_SALE_TAX_PRICE_INCLUDE_SELECTION,
         compute="_compute_sale_tax_price_include",
         string="Taxes in Sale Price",
         help="Indicate if the Sale Price include Taxes or not",
@@ -21,12 +23,10 @@ class ProductTemplate(models.Model):
 
     price_vat_excl = fields.Float(
         compute="_compute_price_vat_incl_excl",
-        multi="price_vat_incl_excl",
         string="Sale Price Taxes Excluded",
     )
     price_vat_incl = fields.Float(
         compute="_compute_price_vat_incl_excl",
-        multi="price_vat_incl_excl",
         string="Sale Price Taxes Included",
     )
 
@@ -39,7 +39,7 @@ class ProductTemplate(models.Model):
             template.price_vat_excl = info["total"]
 
     @api.multi
-    @api.depends("taxes_id")
+    @api.depends("taxes_id.price_include")
     def _compute_sale_tax_price_include(self):
         for template in self:
             sale_tax_price_include = ""

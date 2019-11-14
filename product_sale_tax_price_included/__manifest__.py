@@ -11,5 +11,5 @@
     "installable": True,
     "depends": ["account"],
     "data": ["views/product_template.xml"],
-    "demo": ["demo/account_tax_demo.xml", "demo/product_template_demo.xml"],
+    "demo": ["demo/account_tax.xml", "demo/product_template.xml"],
 }
