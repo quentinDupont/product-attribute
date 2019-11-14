@@ -23,44 +23,38 @@ class ProductTemplate(models.Model):
 
     price_vat_excl = fields.Float(
         compute="_compute_price_vat_incl_excl",
-        string="Sale Price Taxes Excluded",
+        string="Sales Price (Excl.)",
+        help="Sale Price, All Taxes Excluded"
     )
     price_vat_incl = fields.Float(
         compute="_compute_price_vat_incl_excl",
-        string="Sale Price Taxes Included",
+        string="Sales Price (Incl.)",
+        help="Sale Price, All Taxes Included"
     )
 
     @api.multi
-    @api.depends("list_price", "taxes_id", "taxes_id.type", "taxes_id.amount")
+    @api.depends(
+        "list_price", "taxes_id", "taxes_id.amount_type", "taxes_id.amount",
+        "taxes_id.include_base_amount")
     def _compute_price_vat_incl_excl(self):
         for template in self:
-            info = template.taxes_id.compute_all(template.list_price, 1)
+            info = template.taxes_id.compute_all(
+                template.list_price, quantity=1.0)
+            template.price_vat_excl = info["total_excluded"]
             template.price_vat_incl = info["total_included"]
-            template.price_vat_excl = info["total"]
 
     @api.multi
-    @api.depends("taxes_id.price_include")
+    @api.depends("taxes_id", "taxes_id.price_include")
     def _compute_sale_tax_price_include(self):
+        print("_compute_sale_tax_price_include")
         for template in self:
-            sale_tax_price_include = ""
+            price_includes = template.mapped('taxes_id.price_include')
 
-            if not template.taxes_id:
+            if not len(price_includes):
                 template.sale_tax_price_include = "no_tax"
+            elif all(price_includes):
+                template.sale_tax_price_include = "all_tax_incl"
+            elif any(price_includes) and len(price_includes) > 1:
+                template.sale_tax_price_include = "various_taxes"
             else:
-                for taxes in template.taxes_id:
-                    if sale_tax_price_include == "":
-                        if taxes.price_include:
-                            sale_tax_price_include = "all_tax_incl"
-                        else:
-                            sale_tax_price_include = "all_tax_excl"
-                    elif taxes.price_include:
-                        if sale_tax_price_include == "all_tax_incl":
-                            sale_tax_price_include = "all_tax_incl"
-                        else:
-                            sale_tax_price_include = "various_taxes"
-                    else:
-                        if sale_tax_price_include == "all_tax_excl":
-                            sale_tax_price_include = "all_tax_excl"
-                        else:
-                            sale_tax_price_include = "various_taxes"
-                    template.sale_tax_price_include = sale_tax_price_include
+                template.sale_tax_price_include = "all_tax_excl"

@@ -5,17 +5,17 @@
 <odoo>
 
         <record model="account.tax" id="account_tax_included_in_price">
-            <field name="name">Demo - New Tax Included In Price (20%)</field>
-            <field name="price_include">True</field>
-            <field name="type">percent</field>
-            <field name="amount">0.2</field>
+            <field name="name">20% (Tax Included)</field>
+            <field name="price_include" eval="True"/>
+            <field name="amount_type">percent</field>
+            <field name="amount">20</field>
         </record>
 
         <record model="account.tax" id="account_tax_excluded_in_price">
-            <field name="name">Demo - New Tax Not Included In Price (10%)</field>
-            <field name="price_include"></field>
-            <field name="type">percent</field>
-            <field name="amount">0.1</field>
+            <field name="name">10% (Tax Excluded)</field>
+            <field name="price_include" eval="False"/>
+            <field name="amount_type">percent</field>
+            <field name="amount">10</field>
         </record>
 
 </odoo>
