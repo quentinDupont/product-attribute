@@ -2,7 +2,7 @@
 <!-- Copyright 2017, Grap
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 
-<openerp><data>
+<odoo>
 
         <record model="account.tax" id="account_tax_included_in_price">
             <field name="name">Demo - New Tax Included In Price (20%)</field>
@@ -18,4 +18,4 @@
             <field name="amount">0.1</field>
         </record>
 
-</data></openerp>
+</odoo>
