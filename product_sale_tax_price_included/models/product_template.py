@@ -46,7 +46,6 @@ class ProductTemplate(models.Model):
     @api.multi
     @api.depends("taxes_id", "taxes_id.price_include")
     def _compute_sale_tax_price_include(self):
-        print("_compute_sale_tax_price_include")
         for template in self:
             price_includes = template.mapped('taxes_id.price_include')
 
